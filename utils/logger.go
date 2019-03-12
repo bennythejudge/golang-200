@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/bshuster-repo/logrus-logstash-hook"
 	"github.com/sirupsen/logrus"
+	"os"
 	"time"
 )
 
@@ -26,17 +27,29 @@ func InitLog(logLevel, formatter string) error {
 			Type:            AppName,
 		})
 	default:
-		// TODO write the default case
 		// TODO Set the formatter using the standard logrus TextFormatter with Forced colors and Full timestamp
+		logrus.SetFormatter(&logrus.TextFormatter{
+			ForceColors: true,
+			FullTimestamp: true,
+		})
 	}
 
 	// TODO set the standard output to os.Stdout
+	logrus.SetOutput(os.Stdout)
+
 
 	// TODO parse the logLevel param
+	level, err := logrus.ParseLevel(logLevel)
+
 
 	// TODO check the parsing error
-	// TODO if error occurs set the logger level as DebugLevel and return the error
-
+	if err != nil {
+		// TODO if error occurs set the logger level as DebugLevel and return the error
+		logrus.SetLevel(logrus.DebugLevel)
+		return err
+	}
+	
 	// TODO if no error occurred, set the parsed level as the logger level
+	logrus.SetLevel(level)
 	return nil
 }
