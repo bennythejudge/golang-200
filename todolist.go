@@ -56,7 +56,20 @@ func main() {
 	// command line flags
 	app.Flags = []cli.Flag{
 		// TODO add an Int flag called "port", for the webserver
+		cli.IntFlag{
+			Value:       port,
+			Name:        "port",
+			Usage:       "Webserver port",
+			Destination: &port,
+		},
 		// TODO add a String flag called "db", for the MongoDB connection string
+		cli.StringFlag{
+			Value:       db,
+			Name:        "db",
+			Usage:       "MongoDB connection string",
+			Destination: &db,
+		},
+		//
 		cli.StringFlag{
 			Value:       dbType,
 			Name:        "dbt, dt",
@@ -82,6 +95,12 @@ func main() {
 			Destination: &logFormat,
 		},
 		// TODO add a Duration flag called "statd" for the statistics duration (ex. 1h, 30s)
+		cli.DurationFlag{
+			Value:       statisticsDuration,
+			Name:        "statd",
+			Usage:       "statistics duration (ex. 1h, 30s)",
+			Destination: &statisticsDuration,
+		},
 	}
 
 	// main action
