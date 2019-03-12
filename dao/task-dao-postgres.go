@@ -2,6 +2,7 @@ package dao
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/Sfeir/golang-200/model"
 	"github.com/satori/go.uuid"
@@ -26,7 +27,25 @@ func NewTaskDAOPostgres(db *sql.DB) TaskDAO {
 func (s *TaskDAOPostgres) GetByID(ID string) (*model.Task, error) {
 
 	// TODO check ID is a valid UUID return ErrInvalidUUID if necessary
+	if _, err := uuid.FromString(ID); err != nil {
+		return nil, ErrInvalidUUID
+	}
+	rows, err := s.db.Query(`SELECT * FROM todos WHERE uuid=$1`, ID)
+	if err != nil {
+		return nil, err
+	}
 
+	results, err := mapRows(rows)
+
+	if len(results) == 0 {
+		return nil, ErrNotFound
+	}
+
+	if len(results) > 1 {
+		return nil, errors.New("too many results for UUID " + ID)
+	}
+
+	return &results[0], nil
 	// TODO use Query method to request the task with the given ID
 
 	// TODO if result is OK, map the row to a Task object using the mapRows function
@@ -37,7 +56,7 @@ func (s *TaskDAOPostgres) GetByID(ID string) (*model.Task, error) {
 
 	// TODO finally if ok return the only result
 
-	return nil, nil
+	//return nil, nil
 }
 
 // GetAll returns all tasks with paging capability

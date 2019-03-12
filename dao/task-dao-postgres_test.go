@@ -37,6 +37,7 @@ func TestDAOPostgres(t *testing.T) {
 	}
 
 	err = daoPostgre.Save(&toSave)
+
 	if err != nil {
 		t.Error(err)
 	}

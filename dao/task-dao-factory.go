@@ -39,6 +39,7 @@ func GetTaskDAO(cnxStr, migrationPath string, daoType DBType) (TaskDAO, error) {
 		// set mode
 		mgoSession.SetMode(mgo.Monotonic, true)
 		// TODO set the connection pool size using the poolSize const
+		mgoSession.SetPoolLimit(poolSize)
 
 		// try to ping host
 		if err = mgoSession.Ping(); err != nil {
@@ -46,7 +47,7 @@ func GetTaskDAO(cnxStr, migrationPath string, daoType DBType) (TaskDAO, error) {
 		}
 
 		// TODO return a new DAO Mongo build with the configured session
-		return nil, nil
+		return NewTaskDAOMongo(mgoSession), nil
 	case DAOPostgres:
 		// postgresql connection
 		db, err := sql.Open("postgres", cnxStr)
@@ -58,6 +59,7 @@ func GetTaskDAO(cnxStr, migrationPath string, daoType DBType) (TaskDAO, error) {
 
 		// set max connection in pool
 		// TODO set the maximum open connections in the pool using const
+		db.SetMaxOpenConns(poolSize)
 
 		// try to ping host
 		if err = db.Ping(); err != nil {
@@ -67,7 +69,7 @@ func GetTaskDAO(cnxStr, migrationPath string, daoType DBType) (TaskDAO, error) {
 		// check is db migration is necessary
 		if len(migrationPath) == 0 {
 			// TODO if no migration return the new DAO PostgreSQL with the db connection
-			return nil, nil
+			return NewTaskDAOPostgres(db), nil
 		}
 
 		//  playing database migration
@@ -89,10 +91,10 @@ func GetTaskDAO(cnxStr, migrationPath string, daoType DBType) (TaskDAO, error) {
 		}
 
 		// TODO return the new DAO PostgreSQL with the db connection
-		return nil, nil
+		return NewTaskDAOPostgres(db), nil
 	case DAOMock:
 		// TODO return a new mocked DAO instance
-		return nil, nil
+		return NewTaskDAOMock(), nil
 	default:
 		return nil, ErrorDAONotFound
 	}
